@@ -1,65 +1,92 @@
-import Image from "next/image";
+"use client";
+
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function Home() {
+  const students = useQuery(api.students.getStudents);
+  const addStudent = useMutation(api.students.addStudent);
+  const deleteStudent = useMutation(api.students.deleteStudent);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [course, setCourse] = useState("");
+
+  const handleAdd = async () => {
+    if (!name || !email || !course) return;
+    await addStudent({ name, email, course });
+    setName("");
+    setEmail("");
+    setCourse("");
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white p-6">
+      <h1 className="text-4xl font-extrabold text-center mb-8 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">
+        Student Management System
+      </h1>
+
+      {/* Add Student */}
+      <Card className="max-w-md mx-auto mb-8 bg-zinc-900 border border-zinc-700 shadow-lg">
+        <CardContent className="space-y-4 p-6">
+          <Input
+            placeholder="Student Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="bg-black text-cyan-400 placeholder:text-zinc-500 border-zinc-700"
+          />
+          <Input
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="bg-black text-emerald-400 placeholder:text-zinc-500 border-zinc-700"
+          />
+          <Input
+            placeholder="Course"
+            value={course}
+            onChange={(e) => setCourse(e.target.value)}
+            className="bg-black text-yellow-400 placeholder:text-zinc-500 border-zinc-700"
+          />
+          <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90">
+            Add Student
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Student List */}
+      <div className="max-w-md mx-auto space-y-4">
+        {students?.map((student) => (
+          <Card
+            key={student._id}
+            className="bg-zinc-800 border border-zinc-700"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            <CardContent className="flex justify-between items-center p-4">
+              <div>
+                <p className="text-lg font-bold text-cyan-400">
+                  {student.name}
+                </p>
+                <p className="text-sm text-emerald-400">
+                  {student.email}
+                </p>
+                <p className="text-sm text-yellow-400">
+                  {student.course}
+                </p>
+              </div>
+              <Button
+                variant="destructive"
+                className="bg-red-600 hover:bg-red-700"
+                onClick={() => deleteStudent({ id: student._id })}
+              >
+                Delete
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </main>
   );
 }
