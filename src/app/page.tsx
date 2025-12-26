@@ -1,7 +1,7 @@
-
-
 "use client";
+
 export const dynamic = "force-dynamic";
+
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useState } from "react";
@@ -18,9 +18,19 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [course, setCourse] = useState("");
 
-  const handleAdd = async () => {
-    if (!name || !email || !course) return;
-    await addStudent({ name, email, course });
+  const handleAddStudent = async () => {
+    if (!name || !email || !course) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    await addStudent({
+      name,
+      email,
+      course,
+    });
+
+    // Clear inputs after add
     setName("");
     setEmail("");
     setCourse("");
@@ -28,59 +38,56 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white p-6">
-      <h1 className="text-4xl font-extrabold text-center mb-8 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">
+      <h1 className="text-4xl font-bold text-center mb-8 text-purple-500">
         Student Management System
       </h1>
 
-      {/* Add Student */}
-      <Card className="max-w-md mx-auto mb-8 bg-zinc-900 border border-zinc-700 shadow-lg">
-        <CardContent className="space-y-4 p-6">
+      {/* Add Student Card */}
+      <Card className="max-w-md mx-auto bg-zinc-900 border border-zinc-700">
+        <CardContent className="p-6 space-y-4">
           <Input
             placeholder="Student Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="bg-black text-cyan-400 placeholder:text-zinc-500 border-zinc-700"
+            className="bg-black text-cyan-400"
           />
           <Input
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="bg-black text-emerald-400 placeholder:text-zinc-500 border-zinc-700"
+            className="bg-black text-green-400"
           />
           <Input
             placeholder="Course"
             value={course}
             onChange={(e) => setCourse(e.target.value)}
-            className="bg-black text-yellow-400 placeholder:text-zinc-500 border-zinc-700"
+            className="bg-black text-yellow-400"
           />
-          <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90">
+
+          {/* IMPORTANT FIX: type='button' */}
+          <Button
+            type="button"
+            onClick={handleAddStudent}
+            className="w-full bg-gradient-to-r from-pink-500 to-purple-600"
+          >
             Add Student
           </Button>
         </CardContent>
       </Card>
 
       {/* Student List */}
-      <div className="max-w-md mx-auto space-y-4">
+      <div className="max-w-md mx-auto mt-8 space-y-4">
         {students?.map((student) => (
-          <Card
-            key={student._id}
-            className="bg-zinc-800 border border-zinc-700"
-          >
+          <Card key={student._id} className="bg-zinc-800 border border-zinc-700">
             <CardContent className="flex justify-between items-center p-4">
               <div>
-                <p className="text-lg font-bold text-cyan-400">
-                  {student.name}
-                </p>
-                <p className="text-sm text-emerald-400">
-                  {student.email}
-                </p>
-                <p className="text-sm text-yellow-400">
-                  {student.course}
-                </p>
+                <p className="text-cyan-400 font-bold">{student.name}</p>
+                <p className="text-green-400 text-sm">{student.email}</p>
+                <p className="text-yellow-400 text-sm">{student.course}</p>
               </div>
               <Button
+                type="button"
                 variant="destructive"
-                className="bg-red-600 hover:bg-red-700"
                 onClick={() => deleteStudent({ id: student._id })}
               >
                 Delete
